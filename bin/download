@@ -9,8 +9,16 @@ source "$PLUGIN_DIR/lib/helpers.sh"
 
 get_arch () {
     local arch=""
+    local uname_output=""
+    local platform=$1
 
-    case "$(uname -m)" in
+    if [ "$platform" == "darwin" ]; then
+        uname_output="$(arch -arm64 uname -m 2> /dev/null || uname -m)"
+    else
+        uname_output="$(uname -m)"
+    fi
+
+    case "$uname_output" in
         x86_64|amd64) arch="amd64"; ;;
         i686|i386) arch="386"; ;;
         armv6l|armv7l) arch="armv6l"; ;;
@@ -50,7 +58,7 @@ download_golang () {
     local arch=""
 
     platform=$(get_platform)
-    arch=$(get_arch)
+    arch=$(get_arch $platform)
 
     curl "https://dl.google.com/go/go${version}.${platform}-${arch}.tar.gz" -o "${download_path}/archive.tar.gz"
     curl "https://dl.google.com/go/go${version}.${platform}-${arch}.tar.gz.sha256" -o "${download_path}/archive.tar.gz.sha256"
